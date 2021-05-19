@@ -7,12 +7,16 @@ const commentsSchema = mongoose.Schema({
 
 const recipeSchema = mongoose.Schema({
     name : String,
-    steps : String,
+    steps : [String],
     pictures : Buffer,
     numOfPersons : Number,
     rate : Number,
     likeState : Boolean,
-    ingredientsId : [{type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'}],
+    ingredientsId : [{
+      ingredientsId: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'},
+      quantity: Number,
+      unit: String
+    }],
     comment: commentsSchema
 });
 
