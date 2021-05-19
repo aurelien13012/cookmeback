@@ -12,7 +12,7 @@ const recipeSchema = mongoose.Schema({
     numOfPersons : Number,
     rate : Number,
     likeState : Boolean,
-    ingredientsId : [{
+    ingredients : [{
       ingredientsId: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'},
       quantity: Number,
       unit: String

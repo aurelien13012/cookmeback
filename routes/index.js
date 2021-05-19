@@ -97,21 +97,6 @@ router.post('/signin', async (req, res, next)=>{
   res.json({result, user, error, token})
 })
 
-//route myFridge = lire mon frigo
-router.get('/myFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
-})
-
-//route addToMyFridge = ajouter un ingredient
-router.put('/addToMyFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
-})
-
-//route deleteFromFridge = supprimer un ingredient
-router.delete('/deleteFromFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
-})
-
 //route recipeFromApi = renvoi des recette de l'api
 router.get('/recipesFromApi',  (req, res, next)=>{
   res.json({result : recipes})
