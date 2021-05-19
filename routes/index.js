@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const userModel = require('../Models/users')
+
+const uid2 = require("uid2");
+const bcrypt = require("bcrypt");
 
 const recipeModel = require('../Models/recipe');
 const ingredientModel = require('../Models/ingredient');
@@ -11,28 +16,88 @@ router.get('/', function(req, res, next) {
 });
 
 // route signup = pour s'inscrire
-router.post('/signup',  (req, res, next)=>{
-  res.json({result : true})
+router.post('/signup',  async (req, res, next)=>{
+
+  let error = []
+  let result = false
+  let saveUser = null
+  let token = null
+
+  const data = await userModel.findOne({
+    email: req.body.emailFromFront
+  })
+
+  if(data != null){
+    error.push('utilisateur déjà présent')
+  }
+
+  if(req.body.firstNameFromFront == ''
+  || req.body.surNameFromFront == ''
+  || req.body.emailFromFront == ''
+  || req.body.passwordFromFront == ''
+  ){
+    error.push('champs vides')
+  }
+
+
+  if(error.length == 0){
+    const hash = bcrypt.hashSync(req.body.passwordFromFront, 10);
+
+    let newUser = new userModel({
+      firstName: req.body.firstNameFromFront,
+      surName: req.body.surNameFromFront,
+      email: req.body.emailFromFront,
+      password: hash,
+      token : uid2(32),
+    })
+  
+    saveUser = await newUser.save()
+  
+    
+    if(saveUser){
+      result = true
+      token = saveUser.token
+    }
+  }
+
+  res.json({result, saveUser, error, token})
 })
 
 //route signin  = pour se loguer
-router.post('/signin',  (req, res, next)=>{
-  res.json({result : true})
-})
+router.post('/signin', async (req, res, next)=>{
 
-//route myFridge = lire mon frigo
-router.get('/myFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
-})
+  let result = false
+  let user = null
+  let error = []
+  let token = null
+  
+  if(req.body.emailFromFront == ''
+  || req.body.passwordFromFront == ''
+  ){
+    error.push('champs vides')
+  }
 
-//route addToMyFridge = ajouter un ingredient
-router.put('/addToMyFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
-})
-
-//route deleteFromFridge = supprimer un ingredient
-router.delete('/deleteFromFridge',  (req, res, next)=>{
-  res.json({result : ingredient})
+  if(error.length == 0){
+    const user = await userModel.findOne({
+      email: req.body.emailFromFront,
+    })
+  
+    
+    if(user){
+      if(bcrypt.compareSync(req.body.passwordFromFront, user.password)){
+        result = true
+        token = user.token
+      } else {
+        result = false
+        error.push('mot de passe incorrect')
+      }
+      
+    } else {
+      error.push('email incorrect')
+    }
+  }
+  
+  res.json({result, user, error, token})
 })
 
 //route recipeFromApi = renvoi des recette de l'api
