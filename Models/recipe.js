@@ -12,7 +12,7 @@ const recipeSchema = mongoose.Schema({
     numOfPersons : Number,
     rate : Number,
     likeState : Boolean,
-    ingredientsId : [{
+    ingredients : [{
       ingredientsId: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'},
       quantity: Number,
       unit: String
@@ -20,4 +20,6 @@ const recipeSchema = mongoose.Schema({
     comment: commentsSchema
 });
 
-const recipeModel = mongooseModel('recipe', recipeSchema);
+const recipeModel = mongoose.model('recipe', recipeSchema);
+
+module.exports = recipeModel;
