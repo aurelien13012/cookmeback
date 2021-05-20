@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 const ingredientsModel = require('../Models/ingredients');
-const userModel = require('../Models/user')
+const userModel = require('../Models/users')
 
 //route myFridge = lire mon frigo
 router.get('/myFridge',  (req, res, next)=>{

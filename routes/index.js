@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
-const userModel = require('../Models/users')
+const UserModel = require('../Models/users')
 
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
@@ -20,7 +20,7 @@ router.post('/signup',  async (req, res, next)=>{
   let saveUser = null
   let token = null
 
-  const data = await userModel.findOne({
+  const data = await UserModel.findOne({
     email: req.body.emailFromFront
   })
 
@@ -40,7 +40,7 @@ router.post('/signup',  async (req, res, next)=>{
   if(error.length == 0){
     const hash = bcrypt.hashSync(req.body.passwordFromFront, 10);
 
-    let newUser = new userModel({
+    let newUser = new UserModel({
       firstName: req.body.firstNameFromFront,
       surName: req.body.surNameFromFront,
       email: req.body.emailFromFront,
@@ -75,7 +75,7 @@ router.post('/signin', async (req, res, next)=>{
   }
 
   if(error.length == 0){
-    const user = await userModel.findOne({
+    const user = await UserModel.findOne({
       email: req.body.emailFromFront,
     })
   

@@ -11,6 +11,6 @@ const userSchema = mongoose.Schema({
     favoritesId : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipe'}]
 });
 
-const userModel = mongoose.model('user', userSchema);
+const UserModel = mongoose.model('user', userSchema);
 
-module.exports = userModel;
+module.exports = UserModel;
