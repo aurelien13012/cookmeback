@@ -7,6 +7,9 @@ const UserModel = require('../Models/users')
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
+const recipeModel = require('../Models/recipe');
+const ingredientModel = require('../Models/ingredient');
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -118,8 +121,21 @@ router.delete('/deleteFav',  (req, res, next)=>{
 })
 
 //route addRecipe  = enregistrer mes recettes
-router.post('/addRecipe',  (req, res, next)=>{
-  res.json({result : success})
+router.post('/addRecipe',  async (req, res, next)=>{
+
+
+
+  const newRecipe = new recipeModel({
+    name : req.body.recipeFromFront,
+    steps : req.body.stepsFromFront,
+    pictures : req.body.pictureFromFront,
+    numOfPersons : req.body.numbFromFront,
+    // ingredients : //mettre variable
+  })
+
+  await newRecipe.save();
+
+  res.json({result : true})
 })
 
 //route myRecipes = lire mes recettes
