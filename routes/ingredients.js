@@ -2,8 +2,13 @@ const mongoose = require('mongoose');
 var express = require('express');
 var router = express.Router();
 
+<<<<<<< HEAD
 const IngredientModel = require('../Models/ingredients');
 const UserModel = require('../Models/users')
+=======
+const ingredientsModel = require('../Models/ingredients');
+const userModel = require('../Models/users')
+>>>>>>> d7f2b44f8582883b6affdefea15f898737bd2300
 
 //route myFridge = lire mon frigo
 router.get('/myFridge', async (req, res, next)=>{
