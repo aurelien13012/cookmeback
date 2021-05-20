@@ -7,8 +7,8 @@ const userModel = require('../Models/users')
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
-const recipeModel = require('../Models/recipe');
-const ingredientModel = require('../Models/ingredient');
+const recipeModel = require('../Models/recipes');
+const ingredientModel = require('../Models/ingredients');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const ingredientsSchema = mongoose.Schema({
+const ingredientSchema = mongoose.Schema({
     name : String,
     category : String
 });
 
-const ingredientsModel = mongoose.model('ingredients', ingredientsSchema);
+const IngredientModel = mongoose.model('ingredients', ingredientSchema);
 
-module.exports = ingredientsModel;
+module.exports = IngredientModel;

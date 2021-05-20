@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
 
-const commentsSchema = mongoose.Schema({
+const commentSchema = mongoose.Schema({
     userId : [{type: mongoose.Schema.Types.ObjectId, ref : 'user'}],
     comment : String
 });
@@ -13,13 +13,13 @@ const recipeSchema = mongoose.Schema({
     rate : Number,
     likeState : Boolean,
     ingredients : [{
-      ingredientsId: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'},
+      ingredientsIds: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredients'},
       quantity: Number,
       unit: String
     }],
-    comment: commentsSchema
+    comments: commentSchema
 });
 
-const recipeModel = mongoose.model('recipe', recipeSchema);
+const RecipeModel = mongoose.model('recipes', recipeSchema);
 
-module.exports = recipeModel;
+module.exports = RecipeModel;
