@@ -11,10 +11,6 @@ const userSchema = mongoose.Schema({
     favoritesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}]
 });
 
-<<<<<<< HEAD
 const UserModel = mongoose.model('users', userSchema);
-=======
-const UserModel = mongoose.model('user', userSchema);
->>>>>>> d7f2b44f8582883b6affdefea15f898737bd2300
 
 module.exports = UserModel;
