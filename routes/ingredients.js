@@ -5,15 +5,29 @@ var router = express.Router();
 const IngredientModel = require('../Models/ingredients');
 const UserModel = require('../Models/users')
 
+// route lire tous les ingrédients de la base de données
+router.get('/allIngredients', async (req, res, next) => {
+  
+  const allIngredients = await IngredientModel.find();
+
+  const dataReturned = allIngredients.filter(ingredient => {
+    return ingredient.category
+  })
+
+  res.json(dataReturned)
+})
+ 
+ 
+
 //route myFridge = lire mon frigo
-router.get('/myFridge', async (req, res, next)=>{
+router.post('/myFridge', async (req, res, next)=>{
   console.log('req.body', req.body);
 
   const user = await UserModel
     .findOne({token: req.body.userTokenFromFront})
     .populate('ingredientsIds')
 
-  res.json({result : user.ingredientsId})
+  res.json(user.ingredientsIds)
 })
 
 //route addToMyFridge = ajouter un ingredient au frigo de l'utilisateur
@@ -28,13 +42,13 @@ router.put('/addToMyFridge', async (req, res, next)=>{
     // Cherche l'utilisateur en base de données
     const user = await UserModel.findOne({token: req.body.userTokenFromFront});
     // Récupère l'array d'ingrédients de l'utilisateur
-    const ingredientsIdCopy = user.ingredientsId;
+    const ingredientsIdCopy = user.ingredientsIds;
     // Ajoute l'ingrédient à l'array
     ingredientsIdCopy.push(ingredient._id);
     // Update la base de données avec le nouveau tableau (qui possède un nouvel element)
     response = await UserModel.updateOne(
       {token: req.body.userTokenFromFront},
-      {ingredientsId: ingredientsIdCopy}
+      {ingredientsIds: ingredientsIdCopy}
     );
   }
 
@@ -60,7 +74,7 @@ router.delete('/deleteFromFridge', async (req, res, next)=>{
     
     response = await UserModel.updateOne(
       {token: req.body.userTokenFromFront},
-      {ingredientsId: newlist}
+      {ingredientsIds: newlist}
     );
   }
 
