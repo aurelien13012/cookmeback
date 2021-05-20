@@ -6,11 +6,11 @@ const userSchema = mongoose.Schema({
     email : String,
     password : String,
     token : String,
-    recipesId : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipe'}],
-    ingredientsId : [{type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'}],
-    favoritesId : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipe'}]
+    recipesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipe'}],
+    ingredientsIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'ingredient'}],
+    favoritesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipe'}]
 });
 
-const userModel = mongoose.model('user', userSchema);
+const UserModel = mongoose.model('user', userSchema);
 
-module.exports = userModel;
+module.exports = UserModel;

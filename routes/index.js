@@ -7,7 +7,7 @@ const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
 const recipeModel = require('../Models/recipe');
-const userModel = require('../Models/users');
+const UserModel = require('../Models/users');
 const ingredientsModel = require('../Models/ingredients');
 
 /* GET home page. */
@@ -120,52 +120,6 @@ router.delete('/deleteFav', (req, res, next) => {
   res.json({ result: favorite })
 })
 
-//route addRecipe  = enregistrer mes recettes
-// router.post('/addRecipe',  async (req, res, next)=>{
-//   console.log('req.body',req.body)
-//   console.log('req.body recipe',req.body.recipeFromFront)
-
-
-//   let ingredientId = await ingredientsModel.find({name: req.body.nameFromFront});
-
-//   if (!ingredientId) {
-//     ingredientId = new ingredientsModel({
-//       name: req.body.name,
-//     })
-//     await ingredientId.save()
-//   }
-
-//   console.log('ingredient', ingredientId)
-
-//   const stepList = req.body.stepsFromFront.map((step,i) => {
-
-//   })
-
-//   const newRecipe = new recipeModel({
-//     name : req.body.recipeFromFront,
-
-//     steps : stepList,
-//     numOfPersons : req.body.numbFromFront,
-//     ingredients : [{
-//       ingredientId : ingredientId._id,
-//       quantity : req.body.quantityFromFront,
-//       unit : req.body.unitFromFront
-//     }]
-//   })
-
-//   await newRecipe.save();
-//   console.log('newrecipe', newRecipe)
-
-//   const recipesId = newRecipe._id
-
-//   const response = await userModel.updateOne(
-//     {token: req.body.userTokenFromFront},
-//     {recipesId}
-//   );
-
-//   res.json({result : newRecipe, response, ingredientId})
-// })
-
 const createIngredientFromListIfNotExist = async (ingredientNames) => {
   // console.log('ingredientname', ingredientNames)
 
@@ -182,12 +136,9 @@ const createIngredientFromListIfNotExist = async (ingredientNames) => {
 
 router.post('/addRecipe', async (req, res, next) => {
   console.log('req.body', req.body)
-  //Récupérer les ID des ingrédients venant du front
-  //Créer les ingrédients qui n'existent pas
+
   await createIngredientFromListIfNotExist(req.body['ingredients[][name]'])
-  // /////////////////////Voir pour chaque ingrédients si ils existent en BDD
-  // /////////////////////Créer les ingrédients qui n'existent pas en BDD
-  // Récupérer les id de tous les ingrédients
+
   const ingredientList = [];
   for (const ingredientName of req.body['ingredients[][name]']) {
     console.log('ingredientname', ingredientName)
@@ -195,42 +146,97 @@ router.post('/addRecipe', async (req, res, next) => {
     ingredientList.push(ingredient)
     console.log('ingredients', ingredientList)
   }
-  
-  //Créer la recette
 
-  const ingredients = [];
-  
-
-    const newRecipe = new recipeModel({
-    name : req.body.recipeFromFront,
-    steps : req.body['steps[]'],
-    numOfPersons : req.body.numbFromFront,
-    ingredients : [{
-      ingredientId : ingredientList._id,
-      quantity : req.body['ingredients[][quantity]'],
-      unit : req.body.unitFromFront
-    }]
+  const ingredients = req.body['ingredients[][name]'].map((ingredientName, i) => {
+    console.log('ingredient', ingredientName)
+    console.log('i', i)
+    return {
+      name: ingredientName,
+      quantity: req.body['ingredients[][quantity]'][i],
+      unit: req.body['ingredients[][unit]'][i]
+    }
   })
-  
-    await newRecipe.save();
+
+  console.log('ingredients', ingredients)
+
+  const newRecipe = new recipeModel({
+    name: req.body.recipeFromFront,
+    steps: req.body['steps[]'],
+    numOfPersons: req.body.numbFromFront,
+    ingredients: ingredients
+  })
+
+  await newRecipe.save();
+  console.log('newRecipe', newRecipe)
+
+  const recipeId = newRecipe._id
+  console.log(recipeId)
+
+  await UserModel.updateOne(
+    { token: req.body.userTokenFromFront },
+    { recipesIds: recipeId }
+  );
 
 
-  res.json({result : newRecipe})
+  res.json({ result: newRecipe })
 })
 
 //route myRecipes = lire mes recettes
-router.get('/myRecipes', (req, res, next) => {
-  res.json({ result: myRecipes })
+router.get('/myRecipes', async (req, res, next) => {
+
+  const recipes =
+    await UserModel.findOne({ token: req.query.tokenFromFront })
+      .populate('recipesIds')
+
+  res.json(recipes)
 })
 
 //route updateMyRecipe = modifier mes recettes
-router.put('/updateMyRecipe', (req, res, next) => {
-  res.json({ result: success })
+router.put('/updateMyRecipe', async (req, res, next) => {
+  console.log('query', req.query)
+  console.log('body', req.body)
+
+  const recipe = await recipeModel.findOne({ _id: req.body.idFromFront })
+  console.log('recipe', recipe)
+
+  await createIngredientFromListIfNotExist(req.body['ingredients[][name]'])
+
+  const ingredientList = [];
+  for (const ingredientName of req.body['ingredients[][name]']) {
+    console.log('ingredientname', ingredientName)
+    const ingredient = await ingredientsModel.findOne({ name: ingredientName });
+    ingredientList.push(ingredient)
+    console.log('ingredients', ingredientList)
+  }
+
+  const ingredients = req.body['ingredients[][name]'].map((ingredientName, i) => {
+    console.log('ingredient', ingredientName)
+    console.log('i', i)
+    return {
+      name: ingredientName,
+      quantity: req.body['ingredients[][quantity]'][i],
+      unit: req.body['ingredients[][unit]'][i]
+    }
+  })
+
+  await recipe.updateOne({
+    name: req.body.recipeFromFront,
+    steps: req.body['steps[]'],
+    numOfPersons: req.body.numbFromFront,
+    ingredients: ingredients
+  })
+
+
+  res.json({result : true})
 })
 
 //route deleteMyRecipe = supprimer mes recettes
-router.delete('/deleteMyRecipe', (req, res, next) => {
-  res.json({ result: success })
+router.delete('/deleteMyRecipe/:idFromFront', async (req, res, next) => {
+
+  const response = await recipeModel.deleteOne({_id: req.params.idFromFront })
+  
+
+  res.json({ result: response })
 })
 
 //route newcomment = ajout commentaires
