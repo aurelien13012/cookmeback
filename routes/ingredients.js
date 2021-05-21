@@ -16,8 +16,6 @@ router.get('/allIngredients', async (req, res, next) => {
 
   res.json(dataReturned)
 })
- 
- 
 
 //route myFridge = lire mon frigo
 router.post('/myFridge', async (req, res, next)=>{
