@@ -10,11 +10,17 @@ router.get('/allIngredients', async (req, res, next) => {
   
   const allIngredients = await IngredientModel.find();
 
-  const dataReturned = allIngredients.filter(ingredient => {
-    return ingredient.category
+  // const dataReturned = allIngredients.filter(ingredient => {
+  //   return ingredient.category
+  // })
+
+  allIngredients.map((ingredient, index) => {
+    if (ingredient.category === undefined) {
+      ingredient.category = "Non categorisé"
+    }
   })
 
-  res.json(dataReturned)
+  res.json(allIngredients)
 })
  
  
