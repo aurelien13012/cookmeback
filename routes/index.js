@@ -64,7 +64,7 @@ router.post('/addRecipe', async (req, res, next) => {
     console.log('ingredient', ingredientName)
     console.log('i', i)
     return {
-      name: ingredientName,
+      ingredientsIds : ingredientList[i]._id,
       quantity: req.body['ingredients[][quantity]'][i],
       unit: req.body['ingredients[][unit]'][i]
     }
@@ -84,10 +84,16 @@ router.post('/addRecipe', async (req, res, next) => {
 
   const recipeId = newRecipe._id
   console.log(recipeId)
+  
+  const user = await UserModel.findOne({token: req.body.userTokenFromFront})
+
+  const userRecipes = user.recipesIds
+
+  userRecipes.push(recipeId)
 
   await UserModel.updateOne(
     { token: req.body.userTokenFromFront },
-    { recipesIds: recipeId }
+    { recipesIds: userRecipes }
   );
 
 
@@ -101,7 +107,11 @@ router.get('/myRecipes', async (req, res, next) => {
     await UserModel.findOne({ token: req.query.tokenFromFront })
       .populate('recipesIds')
 
-  res.json(recipes)
+  console.log('recipes',recipes)
+  console.log('recipesId',recipes.recipesIds)
+  console.log('recipesId',recipes.recipesIds._id)
+
+  res.json(recipes.recipesIds)
 })
 
 //route updateMyRecipe = modifier mes recettes
@@ -126,7 +136,7 @@ router.put('/updateMyRecipe', async (req, res, next) => {
     console.log('ingredient', ingredientName)
     console.log('i', i)
     return {
-      name: ingredientName,
+      ingredientsIds : ingredientList[i]._id,
       quantity: req.body['ingredients[][quantity]'][i],
       unit: req.body['ingredients[][unit]'][i]
     }
