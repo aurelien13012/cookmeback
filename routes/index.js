@@ -84,10 +84,16 @@ router.post('/addRecipe', async (req, res, next) => {
 
   const recipeId = newRecipe._id
   console.log(recipeId)
+  
+  const user = await UserModel.findOne({token: req.body.userTokenFromFront})
+
+  const userRecipes = user.recipesIds
+
+  userRecipes.push(recipeId)
 
   await UserModel.updateOne(
     { token: req.body.userTokenFromFront },
-    { recipesIds: recipeId }
+    { recipesIds: userRecipes }
   );
 
 
