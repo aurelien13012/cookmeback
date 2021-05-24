@@ -12,12 +12,11 @@ router.post('/readRecipe', async (req, res, next) => {
     .findById(req.body.idFromFront)
     .populate("ingredients.ingredientsIds")
     
-  
-  // const test = await recipe.ingredients.populate('ingredientsIds')
+  const user = await UserModel.findOne({token: req.body.userTokenFromFront});
 
   res.json({
-    response: recipe,
-    // test: test
+    recipe: recipe,
+    user: user
   })
 })
 
