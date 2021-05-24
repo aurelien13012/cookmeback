@@ -89,9 +89,9 @@ router.post('/signin', async (req, res, next)=>{
         error.push('mot de passe incorrect')
       }
       
-    } else {
-      error.push('email incorrect')
-    }
+  } else {
+    error.push('email incorrect')
+  }
   }
   
   res.json({result, user, error, token})
