@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 const IngredientModel = require('../Models/ingredients');
-const UserModel = require('../Models/users')
+const UserModel = require('../Models/users');
 
 // route lire tous les ingrédients de la base de données
 router.get('/allIngredients', async (req, res, next) => {
@@ -30,6 +30,12 @@ router.post('/myFridge', async (req, res, next)=>{
   const user = await UserModel
     .findOne({token: req.body.userTokenFromFront})
     .populate('ingredientsIds')
+
+  user.ingredientsIds.map((ingredient, index) => {
+    if (ingredient.category === undefined) {
+      ingredient.category = "Non categorisé"
+    }
+  })
 
   res.json(user.ingredientsIds)
 })
