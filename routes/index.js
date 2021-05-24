@@ -49,24 +49,39 @@ const createIngredientFromListIfNotExist = async (ingredientNames) => {
 
 router.post('/addRecipe', async (req, res, next) => {
   console.log('req.body', req.body)
+  console.log('recipeName', req.body.recipeFromFront)
+  console.log('req.bodyingredientsname', req.body['ingredients[][name]'])
+  console.log('picture', req.body.pictureFromFront)
+  console.log('files', req.files)
 
-  await createIngredientFromListIfNotExist(req.body['ingredients[][name]'])
+  const bodyIngredients = JSON.parse(req.body.ingredients)
+  let ingredientNames = bodyIngredients.map((ing)=>ing.name)
+  let ingredientQuantities = bodyIngredients.map((ing)=>ing.quantity)
+  let ingredientUnits = bodyIngredients.map((ing)=>ing.unit)
+  let ingredientSteps = JSON.parse(req.body.steps)
+
+  console.log ('bodyIngredients', bodyIngredients)
+  console.log('ingredientNames',ingredientNames)
+  console.log('ingredientQte',ingredientQuantities)
+  console.log('ingredientUnits',ingredientUnits)
+
+  await createIngredientFromListIfNotExist(ingredientNames)
 
   const ingredientList = [];
-  for (const ingredientName of req.body['ingredients[][name]']) {
+  for (const ingredientName of ingredientNames) {
     console.log('ingredientname', ingredientName)
     const ingredient = await ingredientsModel.findOne({ name: ingredientName });
     ingredientList.push(ingredient)
     console.log('ingredients', ingredientList)
   }
 
-  const ingredients = req.body['ingredients[][name]'].map((ingredientName, i) => {
+  const ingredients = ingredientNames.map((ingredientName, i) => {
     console.log('ingredient', ingredientName)
     console.log('i', i)
     return {
       ingredientsIds : ingredientList[i]._id,
-      quantity: req.body['ingredients[][quantity]'][i],
-      unit: req.body['ingredients[][unit]'][i]
+      quantity: ingredientQuantities[i],
+      unit: ingredientUnits[i]
     }
   })
 
@@ -74,9 +89,10 @@ router.post('/addRecipe', async (req, res, next) => {
 
   const newRecipe = new recipeModel({
     name: req.body.recipeFromFront,
-    steps: req.body['steps[]'],
+    steps: ingredientSteps,
     numOfPersons: req.body.numbFromFront,
-    ingredients: ingredients
+    ingredients: ingredients,
+    pictures : req.body.pictureFromFront
   })
 
   await newRecipe.save();
