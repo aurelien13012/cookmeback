@@ -100,6 +100,7 @@ router.post('/addRecipe', async (req, res, next) => {
 
   let pictureName;
   let resultCloudinary;
+  console.log("reqFiles", req.files);
   if (req.files) {
     pictureName = 'tmp/' + uniqid() + '.jpg';
     let resultPicture = await req.files.food.mv(pictureName);
@@ -137,6 +138,7 @@ router.post('/addRecipe', async (req, res, next) => {
     }
 
   } else {
+    console.log("in else");
     const newRecipe = new recipeModel({
       name: req.body.recipeFromFront,
       steps: ingredientSteps,
