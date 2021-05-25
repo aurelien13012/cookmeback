@@ -7,7 +7,7 @@ const UserModel = require("../Models/users");
 const IngredientsModel = require("../Models/ingredients");
 
 //route recipeBook = recette suggérée
-router.get("/recipeBook", async (req, res, next) => {
+router.post("/recipeBook", async (req, res, next) => {
   //cherche les recettes en base de donnée
   const recipes = await RecipeModel.find();
 
@@ -15,19 +15,20 @@ router.get("/recipeBook", async (req, res, next) => {
   const user = await UserModel.findOne({ token: req.body.userTokenFromFront });
   // Récupère l'array d'ingrédients de l'utilisateur
   const userIngredientsIds = user.ingredientsIds;
-
+  // console.log("userIngredientsIds", userIngredientsIds);
+  // console.log("userIngredientsIds.length", userIngredientsIds.length);
   const suggestedRecipes = [];
 
-  recipes.map((recipe) => {
+  recipes.forEach((recipe) => {
     let recipeIngredients = recipe.ingredients;
-      // console.log("recipeIngredients", recipeIngredients);
-      // console.log("recipe", recipe);
+      console.log("recipeIngredients", recipeIngredients);
+      //console.log("recipe", recipe);
     let hasIngredients = true;
 
-    recipeIngredients.map((recipeIngredient) => {
+    recipeIngredients.forEach((recipeIngredient) => {
       let isFound = false;
 
-      userIngredientsIds.map((userIngredientId) => {
+      userIngredientsIds.forEach((userIngredientId) => {
         if (
           recipeIngredient.ingredientsIds.toString() === userIngredientId.toString()
         ) {
@@ -35,17 +36,23 @@ router.get("/recipeBook", async (req, res, next) => {
         }
       });
 
-    if (isFound === false) {
-    hasIngredients = false;
+      if (isFound === false) {
+        hasIngredients = false;
       }
     });
   
-  if (hasIngredients === true){
-    suggestedRecipes.push(recipe._id)
-  }
+    if (hasIngredients === true){
+      suggestedRecipes.push(recipe._id)
+    }
   });
 
-  res.json({suggestedRecipes});
+  if (suggestedRecipes.length === 0){
+    
+  }
+  const suggestedRecipe = await RecipeModel.findById(suggestedRecipes[0])
+  console.log("result",suggestedRecipe);
+  console.log("suggestedRecipes",suggestedRecipes);
+  res.json(suggestedRecipe);
 });
 
 //route recipesList = afficher toutes les recettes de la bdd
