@@ -62,4 +62,18 @@ router.get("/recipesList", async (req, res, next) => {
   res.json(allRecipes);
 });
 
+
+router.post('/myFavorites', async (req, res, next) => {
+  console.log(req.body);
+
+  const user = await UserModel
+    .findOne({token: req.body.userTokenFromFront})
+    .populate('favoritesIds');
+
+  const favoritesIds = user.favoritesIds;
+  console.log('favoritesIds', favoritesIds);
+
+  res.json(favoritesIds)
+})
+
 module.exports = router;

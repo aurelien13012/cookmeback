@@ -8,7 +8,7 @@ const commentSchema = mongoose.Schema({
 const recipeSchema = mongoose.Schema({
     name : String,
     steps : [String],
-    pictures : Buffer,
+    pictures : String,
     numOfPersons : Number,
     rate : Number,
     likeState : Boolean,
