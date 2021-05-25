@@ -65,18 +65,16 @@ router.post('/addRecipe', async (req, res, next) => {
   // console.log('picture', req.body.pictureFromFront)
   // console.log('files', req.files)
 
-
-
   const bodyIngredients = JSON.parse(req.body.ingredients)
   let ingredientNames = bodyIngredients.map((ing) => ing.name)
   let ingredientQuantities = bodyIngredients.map((ing) => ing.quantity)
   let ingredientUnits = bodyIngredients.map((ing) => ing.unit)
   let ingredientSteps = JSON.parse(req.body.steps)
 
-  console.log('bodyIngredients', bodyIngredients)
-  console.log('ingredientNames', ingredientNames)
-  console.log('ingredientQte', ingredientQuantities)
-  console.log('ingredientUnits', ingredientUnits)
+  // console.log('bodyIngredients', bodyIngredients)
+  // console.log('ingredientNames', ingredientNames)
+  // console.log('ingredientQte', ingredientQuantities)
+  // console.log('ingredientUnits', ingredientUnits)
 
   await createIngredientFromListIfNotExist(ingredientNames)
 
