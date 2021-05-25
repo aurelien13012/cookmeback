@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const uniqid = require('uniqid');
+const fs = require('fs');
 const express = require('express');
 const router = express.Router();
 
@@ -6,6 +8,15 @@ const router = express.Router();
 const recipeModel = require('../Models/recipes');
 const UserModel = require('../Models/users');
 const ingredientsModel = require('../Models/ingredients');
+
+
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
+
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -48,56 +59,111 @@ const createIngredientFromListIfNotExist = async (ingredientNames) => {
 }
 
 router.post('/addRecipe', async (req, res, next) => {
-  console.log('req.body', req.body)
+  // console.log('req.body', req.body)
+  // console.log('recipeName', req.body.recipeFromFront)
+  // console.log('req.bodyingredientsname', req.body['ingredients[][name]'])
+  // console.log('picture', req.body.pictureFromFront)
+  // console.log('files', req.files)
 
-  await createIngredientFromListIfNotExist(req.body['ingredients[][name]'])
+  const bodyIngredients = JSON.parse(req.body.ingredients)
+  let ingredientNames = bodyIngredients.map((ing) => ing.name)
+  let ingredientQuantities = bodyIngredients.map((ing) => ing.quantity)
+  let ingredientUnits = bodyIngredients.map((ing) => ing.unit)
+  let ingredientSteps = JSON.parse(req.body.steps)
+
+  // console.log('bodyIngredients', bodyIngredients)
+  // console.log('ingredientNames', ingredientNames)
+  // console.log('ingredientQte', ingredientQuantities)
+  // console.log('ingredientUnits', ingredientUnits)
+
+  await createIngredientFromListIfNotExist(ingredientNames)
 
   const ingredientList = [];
-  for (const ingredientName of req.body['ingredients[][name]']) {
+  for (const ingredientName of ingredientNames) {
     console.log('ingredientname', ingredientName)
     const ingredient = await ingredientsModel.findOne({ name: ingredientName });
     ingredientList.push(ingredient)
     console.log('ingredients', ingredientList)
   }
 
-  const ingredients = req.body['ingredients[][name]'].map((ingredientName, i) => {
+  const ingredients = ingredientNames.map((ingredientName, i) => {
     console.log('ingredient', ingredientName)
     console.log('i', i)
     return {
-      ingredientsIds : ingredientList[i]._id,
-      quantity: req.body['ingredients[][quantity]'][i],
-      unit: req.body['ingredients[][unit]'][i]
+      ingredientsIds: ingredientList[i]._id,
+      quantity: ingredientQuantities[i],
+      unit: ingredientUnits[i]
     }
   })
 
   console.log('ingredients', ingredients)
 
-  const newRecipe = new recipeModel({
-    name: req.body.recipeFromFront,
-    steps: req.body['steps[]'],
-    numOfPersons: req.body.numbFromFront,
-    ingredients: ingredients
-  })
+  let pictureName;
+  let resultCloudinary;
+  if (req.files) {
+    pictureName = 'tmp/' + uniqid() + '.jpg';
+    let resultPicture = await req.files.food.mv(pictureName);
+    if (!resultPicture) {
+      resultCloudinary = await cloudinary.uploader.upload(pictureName)
+      console.log('cloudi', resultCloudinary.url)
+      const newRecipe = new recipeModel({
+        name: req.body.recipeFromFront,
+        steps: ingredientSteps,
+        numOfPersons: req.body.numbFromFront,
+        ingredients: ingredients,
+        pictures: resultCloudinary.url
+      })
 
-  await newRecipe.save();
-  console.log('newRecipe', newRecipe)
+      await newRecipe.save();
+      console.log('newRecipe', newRecipe)
 
-  const recipeId = newRecipe._id
-  console.log(recipeId)
-  
-  const user = await UserModel.findOne({token: req.body.userTokenFromFront})
+      const recipeId = newRecipe._id
+      console.log(recipeId)
 
-  const userRecipes = user.recipesIds
+      const user = await UserModel.findOne({ token: req.body.userTokenFromFront })
 
-  userRecipes.push(recipeId)
+      const userRecipes = user.recipesIds
 
-  await UserModel.updateOne(
-    { token: req.body.userTokenFromFront },
-    { recipesIds: userRecipes }
-  );
+      userRecipes.push(recipeId)
+
+      await UserModel.updateOne(
+        { token: req.body.userTokenFromFront },
+        { recipesIds: userRecipes }
+      );
+
+      res.json({ result: newRecipe})
+
+      fs.unlinkSync(pictureName);
+    }
+
+  } else {
+    const newRecipe = new recipeModel({
+      name: req.body.recipeFromFront,
+      steps: ingredientSteps,
+      numOfPersons: req.body.numbFromFront,
+      ingredients: ingredients,
+    })
+    await newRecipe.save();
+    console.log('newRecipe', newRecipe)
+
+    const recipeId = newRecipe._id
+    console.log(recipeId)
+
+    const user = await UserModel.findOne({ token: req.body.userTokenFromFront })
+
+    const userRecipes = user.recipesIds
+
+    userRecipes.push(recipeId)
+
+    await UserModel.updateOne(
+      { token: req.body.userTokenFromFront },
+      { recipesIds: userRecipes }
+    );
 
 
-  res.json({ result: newRecipe })
+    res.json({ result: newRecipe })
+  }
+
 })
 
 //route myRecipes = lire mes recettes
@@ -107,9 +173,9 @@ router.get('/myRecipes', async (req, res, next) => {
     await UserModel.findOne({ token: req.query.tokenFromFront })
       .populate('recipesIds')
 
-  console.log('recipes',recipes)
-  console.log('recipesId',recipes.recipesIds)
-  console.log('recipesId',recipes.recipesIds._id)
+  console.log('recipes', recipes)
+  console.log('recipesId', recipes.recipesIds)
+  console.log('recipesId', recipes.recipesIds._id)
 
   res.json(recipes.recipesIds)
 })
@@ -136,7 +202,7 @@ router.put('/updateMyRecipe', async (req, res, next) => {
     console.log('ingredient', ingredientName)
     console.log('i', i)
     return {
-      ingredientsIds : ingredientList[i]._id,
+      ingredientsIds: ingredientList[i]._id,
       quantity: req.body['ingredients[][quantity]'][i],
       unit: req.body['ingredients[][unit]'][i]
     }
@@ -150,14 +216,14 @@ router.put('/updateMyRecipe', async (req, res, next) => {
   })
 
 
-  res.json({result : true})
+  res.json({ result: true })
 })
 
 //route deleteMyRecipe = supprimer mes recettes
 router.delete('/deleteMyRecipe/:idFromFront', async (req, res, next) => {
 
-  const response = await recipeModel.deleteOne({_id: req.params.idFromFront })
-  
+  const response = await recipeModel.deleteOne({ _id: req.params.idFromFront })
+
 
   res.json({ result: response })
 })

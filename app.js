@@ -1,3 +1,4 @@
+var fileUpload = require('express-fileupload');
 require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
@@ -14,6 +15,7 @@ var recipesListRouter = require('./routes/recipesList')
 require ('./Models/connection');
 
 var app = express();
+app.use(fileUpload());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
