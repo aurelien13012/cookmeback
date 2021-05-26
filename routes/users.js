@@ -29,7 +29,7 @@ router.post('/signup',  async (req, res, next)=>{
   }
 
   if(req.body.firstNameFromFront == ''
-  || req.body.surNameFromFront == ''
+  || req.body.surnameFromFront == ''
   || req.body.emailFromFront == ''
   || req.body.passwordFromFront == ''
   ){
@@ -42,7 +42,7 @@ router.post('/signup',  async (req, res, next)=>{
 
     let newUser = new UserModel({
       firstName: req.body.firstNameFromFront,
-      surName: req.body.surNameFromFront,
+      surname: req.body.surnameFromFront,
       email: req.body.emailFromFront,
       password: hash,
       token : uid2(32),
