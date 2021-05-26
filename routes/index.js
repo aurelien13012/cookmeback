@@ -59,6 +59,7 @@ const createIngredientFromListIfNotExist = async (ingredientNames) => {
 }
 
 router.post('/addRecipe', async (req, res, next) => {
+  // console.log('req', req)
   // console.log('req.body', req.body)
   // console.log('recipeName', req.body.recipeFromFront)
   // console.log('req.bodyingredientsname', req.body['ingredients[][name]'])
@@ -132,7 +133,7 @@ router.post('/addRecipe', async (req, res, next) => {
         { recipesIds: userRecipes }
       );
 
-      res.json({ result: newRecipe})
+      res.json(recipeId)
 
       fs.unlinkSync(pictureName);
     }
@@ -149,7 +150,7 @@ router.post('/addRecipe', async (req, res, next) => {
     console.log('newRecipe', newRecipe)
 
     const recipeId = newRecipe._id
-    console.log(recipeId)
+    console.log('recipeID', recipeId)
 
     const user = await UserModel.findOne({ token: req.body.userTokenFromFront })
 
@@ -163,7 +164,7 @@ router.post('/addRecipe', async (req, res, next) => {
     );
 
 
-    res.json({ result: newRecipe })
+    res.json(recipeId)
   }
 
 })
