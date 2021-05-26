@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 var ingredientsRouter = require('./routes/ingredients');
 var recipeRouter = require('./routes/recipe')
 var recipesListRouter = require('./routes/recipesList')
+var accountRouter = require('./routes/account')
 
 require ('./Models/connection');
 
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/ingredients', ingredientsRouter);
 app.use('/recipe', recipeRouter);
 app.use('/recipesList', recipesListRouter);
+app.use('/account', accountRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

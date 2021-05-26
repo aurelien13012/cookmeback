@@ -4,13 +4,11 @@ const router = express.Router();
 
 const RecipeModel = require("../Models/recipes");
 const UserModel = require("../Models/users");
-const IngredientsModel = require("../Models/ingredients");
 
 //route recipeBook = recette suggérée
 router.post("/recipeBook", async (req, res, next) => {
   //cherche les recettes en base de donnée
   const recipes = await RecipeModel.find();
-
   // Cherche l'utilisateur en base de données
   const user = await UserModel.findOne({ token: req.body.userTokenFromFront });
   // Récupère l'array d'ingrédients de l'utilisateur
@@ -46,13 +44,10 @@ router.post("/recipeBook", async (req, res, next) => {
     }
   });
 
-  if (suggestedRecipes.length === 0){
-    
-  }
   const suggestedRecipe = await RecipeModel.findById(suggestedRecipes[0])
   console.log("result",suggestedRecipe);
   console.log("suggestedRecipes",suggestedRecipes);
-  res.json(suggestedRecipe);
+  res.json({suggestedRecipe});
 });
 
 //route recipesList = afficher toutes les recettes de la bdd
