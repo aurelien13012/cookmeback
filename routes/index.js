@@ -112,7 +112,9 @@ router.post('/addRecipe', async (req, res, next) => {
         steps: ingredientSteps,
         numOfPersons: req.body.numbFromFront,
         ingredients: ingredients,
-        pictures: resultCloudinary.url
+        pictures: resultCloudinary.url,
+        nbLike: 0,
+        nbVote: 0
       })
 
       await newRecipe.save();
