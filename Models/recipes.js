@@ -10,7 +10,8 @@ const recipeSchema = mongoose.Schema({
     steps : [String],
     pictures : String,
     numOfPersons : Number,
-    rate : Number,
+    nbLike : Number,
+    nbVote: Number,
     likeState : Boolean,
     ingredients : [{
       ingredientsIds: {type: mongoose.Schema.Types.ObjectId, ref : 'ingredients'},

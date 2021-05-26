@@ -8,7 +8,9 @@ const userSchema = mongoose.Schema({
     token : String,
     recipesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}],
     ingredientsIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'ingredients'}],
-    favoritesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}]
+    favoritesIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}],
+    likedIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}],
+    dislikedIds : [{type: mongoose.Schema.Types.ObjectId, ref : 'recipes'}]
 });
 
 const UserModel = mongoose.model('users', userSchema);
