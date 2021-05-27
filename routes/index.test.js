@@ -1,20 +1,31 @@
 var app = require("../app")
 var request = require("supertest")
 
-//test route pour sign up 
+// test route pour sign up 
 test("name", async (done) => {
-    await request(app).post("/signin")
-        .send({ "firstname": "John" })
+    await request(app).post("/users/signin")
+        .send({
+            "firstname": "a",
+            "surname": "a",
+            "email": "a@a.a",
+            "password": "a"
+        })
         .expect(200)
-        .expect({ prenom: "John" })
+        // .expect(result)
     done()
 })
 
-//test route myrecipe mettre en place une entrée une sortie 
-test("name", async (done) => {
-    await request(app).post("/infoUser")
-        .send({ token })
+test('Homepage OK', async (done) => {
+    await request(app).get('/')
+        .send()
         .expect(200)
-        .expect({ recipe })
-    done()
+
+    done();
+})
+
+test('fridge', async (done) => {
+    await request(app).get('/ingredients/allIngredients')
+        .send()
+        .expect(200)
+    done();
 })
