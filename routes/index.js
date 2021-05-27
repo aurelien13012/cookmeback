@@ -24,6 +24,8 @@ router.get('/', function (req, res, next) {
 });
 
 
+
+//Fonction pour trouver si la recette existe ou non, si non on la créer
 const createIngredientFromListIfNotExist = async (ingredientNames) => {
   // console.log('ingredientname', ingredientNames)
 
@@ -46,6 +48,7 @@ router.post('/addRecipe', async (req, res, next) => {
   // console.log('picture', req.body.pictureFromFront)
   // console.log('files', req.files)
 
+  //on parse les elements recu en string pour les remettre en tableau et on map dedans 
   const bodyIngredients = JSON.parse(req.body.ingredients)
   let ingredientNames = bodyIngredients.map((ing) => ing.name)
   let ingredientQuantities = bodyIngredients.map((ing) => ing.quantity)
@@ -61,12 +64,13 @@ router.post('/addRecipe', async (req, res, next) => {
 
   const ingredientList = [];
   for (const ingredientName of ingredientNames) {
-    console.log('ingredientname', ingredientName)
+    // console.log('ingredientname', ingredientName)
     const ingredient = await ingredientsModel.findOne({ name: ingredientName });
     ingredientList.push(ingredient)
     // console.log('ingredients', ingredientList)
   }
 
+  //on map dans ingredient name pour créer un nouveau tableau avec name associé a quantité et unité
   const ingredients = ingredientNames.map((ingredientName, i) => {
     // console.log('ingredient', ingredientName)
     // console.log('i', i)
@@ -77,12 +81,16 @@ router.post('/addRecipe', async (req, res, next) => {
     }
   })
 
-  console.log('ingredients', ingredients)
+  // console.log('ingredients', ingredients)
 
   let pictureName;
   let resultCloudinary;
   // console.log("reqFiles", req.files);
+
+  //condition si on reçoit une photo
   if (req.files) {
+
+    //enregistrement de la photo a un nom unique et deplacement de la photo
     pictureName = 'tmp/' + uniqid() + '.jpg';
     let resultPicture = await req.files.food.mv(pictureName);
     if (!resultPicture) {
@@ -98,6 +106,7 @@ router.post('/addRecipe', async (req, res, next) => {
         nbVote: 0
       })
 
+      //enregistrement de la recette
       await newRecipe.save();
       // console.log('newRecipe', newRecipe)
 
@@ -110,6 +119,7 @@ router.post('/addRecipe', async (req, res, next) => {
 
       userRecipes.push(recipeId)
 
+      //update du user qui a ajouter la recette
       await UserModel.updateOne(
         { token: req.body.userTokenFromFront },
         { recipesIds: userRecipes }
