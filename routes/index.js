@@ -24,26 +24,6 @@ router.get('/', function (req, res, next) {
 });
 
 
-//route recipeFromApi = renvoi des recette de l'api
-router.get('/recipesFromApi', (req, res, next) => {
-  res.json({ result: recipes })
-})
-
-//route addFav = ajout d'une recette en favorite
-router.get('/addFav', (req, res, next) => {
-  res.json({ result: favorite })
-})
-
-//route favoriteRecipes = lecture recette favorite
-router.get('/favoriteRecipes', (req, res, next) => {
-  res.json({ result: favorite })
-})
-
-//route deleteFav = suppression d'une recette favorite
-router.delete('/deleteFav', (req, res, next) => {
-  res.json({ result: favorite })
-})
-
 const createIngredientFromListIfNotExist = async (ingredientNames) => {
   // console.log('ingredientname', ingredientNames)
 
@@ -84,12 +64,12 @@ router.post('/addRecipe', async (req, res, next) => {
     console.log('ingredientname', ingredientName)
     const ingredient = await ingredientsModel.findOne({ name: ingredientName });
     ingredientList.push(ingredient)
-    console.log('ingredients', ingredientList)
+    // console.log('ingredients', ingredientList)
   }
 
   const ingredients = ingredientNames.map((ingredientName, i) => {
-    console.log('ingredient', ingredientName)
-    console.log('i', i)
+    // console.log('ingredient', ingredientName)
+    // console.log('i', i)
     return {
       ingredientsIds: ingredientList[i]._id,
       quantity: ingredientQuantities[i],
@@ -101,13 +81,13 @@ router.post('/addRecipe', async (req, res, next) => {
 
   let pictureName;
   let resultCloudinary;
-  console.log("reqFiles", req.files);
+  // console.log("reqFiles", req.files);
   if (req.files) {
     pictureName = 'tmp/' + uniqid() + '.jpg';
     let resultPicture = await req.files.food.mv(pictureName);
     if (!resultPicture) {
       resultCloudinary = await cloudinary.uploader.upload(pictureName)
-      console.log('cloudi', resultCloudinary.url)
+      // console.log('cloudi', resultCloudinary.url)
       const newRecipe = new recipeModel({
         name: req.body.recipeFromFront,
         steps: ingredientSteps,
@@ -119,10 +99,10 @@ router.post('/addRecipe', async (req, res, next) => {
       })
 
       await newRecipe.save();
-      console.log('newRecipe', newRecipe)
+      // console.log('newRecipe', newRecipe)
 
       const recipeId = newRecipe._id
-      console.log(recipeId)
+      // console.log(recipeId)
 
       const user = await UserModel.findOne({ token: req.body.userTokenFromFront })
 
@@ -141,7 +121,7 @@ router.post('/addRecipe', async (req, res, next) => {
     }
 
   } else {
-    console.log("in else");
+    // console.log("in else");
     const newRecipe = new recipeModel({
       name: req.body.recipeFromFront,
       steps: ingredientSteps,
@@ -149,10 +129,10 @@ router.post('/addRecipe', async (req, res, next) => {
       ingredients: ingredients,
     })
     await newRecipe.save();
-    console.log('newRecipe', newRecipe)
+    // console.log('newRecipe', newRecipe)
 
     const recipeId = newRecipe._id
-    console.log('recipeID', recipeId)
+    // console.log('recipeID', recipeId)
 
     const user = await UserModel.findOne({ token: req.body.userTokenFromFront })
 
@@ -178,9 +158,9 @@ router.get('/myRecipes', async (req, res, next) => {
     await UserModel.findOne({ token: req.query.tokenFromFront })
       .populate('recipesIds')
 
-  console.log('recipes', recipes)
-  console.log('recipesId', recipes.recipesIds)
-  console.log('recipesId', recipes.recipesIds._id)
+  // console.log('recipes', recipes)
+  // console.log('recipesId', recipes.recipesIds)
+  // console.log('recipesId', recipes.recipesIds._id)
 
   res.json(recipes.recipesIds)
 })
