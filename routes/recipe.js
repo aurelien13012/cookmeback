@@ -60,7 +60,7 @@ router.put('/updateVote', async (req, res, next) => {
   let dislikedIds = user.dislikedIds;
   let nbVote = recipe.nbVote;
   let nbLike = recipe.nbLike;
-  let likedIds2;
+  // let likedIds2;
 
   console.log('liked Ids before', likedIds);
 
